@@ -1,4 +1,3 @@
-import { Account } from "./Account";
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -28,7 +27,7 @@ export class Account extends BaseEntity {
   @Column({ name: "account_number", unique: true })
   readonly accountNumber: string;
 
-  @Column()
+  @Column({ name: "account_balance", default: 0.00 })
   private balance: number;
 
   @Column({ name: "transaction_token" })
