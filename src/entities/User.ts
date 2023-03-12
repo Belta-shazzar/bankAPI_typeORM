@@ -4,16 +4,23 @@ import { MinLength, IsEmail } from "class-validator";
 @Entity("user")
 export class User extends BaseEntity {
   @PrimaryGeneratedColumn()
-  id: number;
+  readonly id: number;
 
   @Column({ name: "full_name" })
   @MinLength(3, { message: "please enter full name" })
-  fullName: string;
+  private fullName: string;
 
   @Column({ unique: true })
   @IsEmail()
-  email: string;
+  private email: string;
 
   @Column()
-  password: string;
+  private password: string;
+
+  constructor(fullName: string, email: string, password: string) {
+    super()
+    this.fullName = fullName;
+    this.email = email;
+    this.password = password;
+  }
 }

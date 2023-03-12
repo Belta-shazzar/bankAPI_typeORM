@@ -1,33 +1,62 @@
-import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, ManyToOne, CreateDateColumn, UpdateDateColumn } from "typeorm";
-import { MinLength, IsEmail } from "class-validator";
+import { Account } from './Account';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  BaseEntity,
+  ManyToOne,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from "typeorm";
+import { TransactionType, TransactionStatus } from "../util/enums";
 import { User } from "./User";
 
 @Entity("transaction_receipt")
 export class Transaction extends BaseEntity {
   @PrimaryGeneratedColumn()
-  id: number;
+  readonly id: number;
 
   @ManyToOne(() => User)
-  author: User;
+  readonly author: User;
 
   @Column({ name: "author_account_number" })
-  authorAccountNumber: string;
+  readonly authorAccountNumber: string;
 
-  @Column({ name: "receiver_account_number" })
-  receiverAccountNumber: string;
+  @ManyToOne(() => Account)
+  readonly receiver: Account;
 
-  @Column({ name: "transaction_type" })
-  transactionType: string;
+  @Column({ name: "transaction_type", type: "enum", enum: TransactionType })
+  readonly transactionType: TransactionType;
 
-  @Column({ name: "status", default: true })
-  transactionStatus: boolean;
+  @Column({
+    name: "status",
+    type: "enum",
+    enum: TransactionStatus,
+    default: TransactionStatus.SUCCESS,
+  })
+  private transactionStatus: TransactionStatus;
 
   @Column()
-  amount: number;
+  readonly amount: number;
 
   @CreateDateColumn()
-  created_at: Date;
+  private created_at: Date;
 
   @UpdateDateColumn()
-  updated_at: Date;
+  private updated_at: Date;
+
+  constructor(
+    authorID: User,
+    authorAN: string,
+    receiver: Account,
+    transactionType: TransactionType,
+    amount: number
+  ) {
+    super();
+    this.author = authorID;
+    this.authorAccountNumber = authorAN;
+    this.receiver = receiver;
+    this.transactionType = transactionType;
+    this.amount = amount;
+  }
 }
