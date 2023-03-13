@@ -33,23 +33,15 @@ export const signUp = async (req: Request, res: Response) => {
   } while (transactionToken.length !== 4);
   const encryptToken = await encryptString(transactionToken);
 
-  
   const accountDeets: any = await createAccount(user, encryptToken);
-  
+
   console.log(typeof accountDeets);
-  
+
   user.setAccount(accountDeets);
   user = await user.save();
 
-
   const jwt = createJWT(user.getId(), user.getFullName());
   // userRepository.create(user)
-
-  console.log("account...")
-  console.log(accountDeets);
-  console.log();
-  console.log("user...");
-  console.log(user);
 
   return res.status(StatusCodes.CREATED).json({
     success: true,
@@ -73,11 +65,11 @@ export const signIn = async (req: Request, res: Response) => {
   let msg = "something went wrong";
 
   try {
-    const user: any = await getByMail(email);
+    let user: any = await getByMail(email);
     if (!user) {
       status = StatusCodes.NOT_FOUND;
       msg = "email not found";
-      throw new Error(msg)
+      throw new Error(msg);
     }
 
     const validatePassword = await validateString(
@@ -88,51 +80,52 @@ export const signIn = async (req: Request, res: Response) => {
     if (validatePassword !== true) {
       status = StatusCodes.UNAUTHORIZED;
       msg = "incorrect password";
-      throw new Error(msg)
+      throw new Error(msg);
     }
 
     const jwt = createJWT(user.getId(), user.getFullName());
-
-    if (status !== StatusCodes.OK) {
-      res.status(status).json({ success: false, msg: msg });
-    }
+    user.account = await AppDataSource.createQueryBuilder()
+      .relation(User, "account")
+      .of(user)
+      .loadOne();
 
     console.log(user);
 
-    res.status(status).json({ success: true, data: {}, jwt });
+    res.status(status).json({
+      success: true,
+      data: {
+        user: { Id: user.id, email: user.email },
+        account: {
+          id: user.account.id,
+          accountName: user.account.accountName,
+          accountNumber: user.account.accountNumber,
+          accountBalance: user.account.balance,
+        },
+      },
+      jwt,
+    });
   } catch (error) {
     console.log(error);
     if (
       status === StatusCodes.NOT_FOUND ||
       status === StatusCodes.UNAUTHORIZED
     ) {
-      res
-        .status(status)
-        .json({
-          success: false,
-          msg,
-        });
+      res.status(status).json({
+        success: false,
+        msg,
+      });
     } else {
-      res
-        .status(StatusCodes.INTERNAL_SERVER_ERROR)
-        .json({
-          success: false,
-          msg,
-        });
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        msg,
+      });
     }
   }
-  
 };
 
 export const getByMail = async (email: string) => {
-  const user = await userRepository
+  return await userRepository
     .createQueryBuilder("user")
     .where("user.email = :email", { email })
     .getOne();
-
-  const user?.account = await AppDataSource.createQueryBuilder().relation()
-  
-  console.log(user)
-  console.log(user?.getAccount())
-  return user;
 };
