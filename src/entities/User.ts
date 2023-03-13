@@ -26,7 +26,7 @@ export class User extends BaseEntity {
   private password: string;
 
   @OneToOne(() => Account, (account) => account.owner, {
-    eager: true,
+    eager: true
   })
   @JoinColumn({ name: "account_id" })
   public account: Account;

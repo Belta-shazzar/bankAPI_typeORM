@@ -1,7 +1,9 @@
 import { generateNumber } from "../../util/helper";
-import { Account } from "../../entities/Account";
 import { StatusCodes } from "http-status-codes";
 import { User } from "../../entities/User";
+import { AppDataSource } from "../../config/data-source";
+import { Account } from "../../entities/Account";
+const accountRepository = AppDataSource.getRepository(Account);
 
 export const createAccount = async (user: User, transactionToken: string) => {
   try {
@@ -26,4 +28,15 @@ export const createAccount = async (user: User, transactionToken: string) => {
     console.log(error);
     throw new Error();
   }
+};
+
+export const getByAccountNumber = async (account_number: string) => {
+  const account = await accountRepository
+    .createQueryBuilder("account")
+    .where("account.account_number = :account_number", { account_number })
+    .getOne();
+
+  console.log(account);
+
+  return account;
 };

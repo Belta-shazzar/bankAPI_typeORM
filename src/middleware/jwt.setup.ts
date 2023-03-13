@@ -24,7 +24,6 @@ export const jwtAuth = (req: any, res: Response, next: NextFunction) => {
 
     const token = authHeader.split(" ")[1];
     const payload = jwt.verify(token, secretKey);
-    console.log(payload)
     req.user = payload;
     next();
   } catch (error) {

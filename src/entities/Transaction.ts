@@ -59,4 +59,12 @@ export class Transaction extends BaseEntity {
     this.transactionType = transactionType;
     this.amount = amount;
   }
+
+  public setTransactionStatus(status: TransactionStatus) {
+    this.transactionStatus = status;
+  }
+
+  public getTransactionStatus(): TransactionStatus {
+    return this.transactionStatus;
+  }
 }

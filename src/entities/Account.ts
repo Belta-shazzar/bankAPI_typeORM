@@ -6,6 +6,7 @@ import {
   OneToOne,
   CreateDateColumn,
   UpdateDateColumn,
+  JoinColumn
 } from "typeorm";
 import { MinLength } from "class-validator";
 import { User } from "./User";
@@ -15,7 +16,8 @@ export class Account extends BaseEntity {
   @PrimaryGeneratedColumn()
   readonly id: number;
 
-  @OneToOne(() => User, (owner) => owner.account)
+  @OneToOne(() => User, (owner) => owner.account, { cascade: true })
+  @JoinColumn({ name: "owner_id" })
   readonly owner: User;
 
   @Column({ name: "account_name" })
