@@ -1,5 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column, BaseEntity } from "typeorm";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  BaseEntity,
+  OneToOne,
+  JoinColumn,
+} from "typeorm";
 import { MinLength, IsEmail } from "class-validator";
+import { Account } from "./Account";
 
 @Entity("user")
 export class User extends BaseEntity {
@@ -16,6 +24,12 @@ export class User extends BaseEntity {
 
   @Column()
   private password: string;
+
+  @OneToOne(() => Account, (account) => account.owner, {
+    eager: true,
+  })
+  @JoinColumn({ name: "account_id" })
+  public account: Account;
 
   constructor(fullName: string, email: string, password: string) {
     super();
@@ -50,5 +64,13 @@ export class User extends BaseEntity {
 
   public getPassword(): string {
     return this.password;
+  }
+
+  public setAccount(account: Account) {
+    this.account = account;
+  }
+
+  public getAccount(): Account {
+    return this.account;
   }
 }

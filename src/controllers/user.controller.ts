@@ -1,15 +1,27 @@
-import { createAccount } from "./service/account.service";
 import { Request, Response, NextFunction } from "express";
+import { AppDataSource } from "../config/data-source";
+import { createAccount } from "./service/account.service";
 import { StatusCodes } from "http-status-codes";
 import { createJWT } from "../middleware/jwt.setup";
 import { User } from "../entities/User";
-import { encryptString, generateNumber } from "../util/helper";
+import { encryptString, generateNumber, validateString } from "../util/helper";
+
+const userRepository = AppDataSource.getRepository(User);
+const dataSource = AppDataSource.manager;
 
 // @desc    User sign up auth
 // @route   GET /auth/sign-up
 // @req.body { "fullName": "Test Case1", "email": "test@gmail.com", "password": "password"}
 export const signUp = async (req: Request, res: Response) => {
   let { fullName, email, password } = req.body;
+  const checkMail = await getByMail(email);
+
+  if (checkMail) {
+    return res
+      .status(StatusCodes.NOT_FOUND)
+      .json({ success: false, msg: "email already exist" });
+  }
+
   password = await encryptString(password);
 
   let user = await new User(fullName, email, password).save();
@@ -22,9 +34,10 @@ export const signUp = async (req: Request, res: Response) => {
   } while (transactionToken.length !== 4);
   const encryptToken = await encryptString(transactionToken);
 
-  console.log(user.getId());
-
   const accountDeets: any = await createAccount(user, encryptToken);
+
+  user.setAccount(accountDeets);
+
   const jwt = createJWT(user.getId(), user.getFullName());
 
   return res.status(StatusCodes.CREATED).json({
@@ -39,7 +52,39 @@ export const signUp = async (req: Request, res: Response) => {
   });
 };
 
+// Not complete
 export const signIn = async (req: Request, res: Response) => {
-  console.log("Signed in successfully");
-  console.log();
+  let { email, password } = req.body;
+  let status = StatusCodes.OK;
+  let msg = "something went wrong";
+
+  const user: any = await getByMail(email);
+  if (!user) {
+    status = StatusCodes.NOT_FOUND;
+    msg = "email not found";
+  }
+
+  const validatePassword = await validateString(password, user.getPassword()!);
+
+  if (validatePassword !== true) {
+    status = StatusCodes.UNAUTHORIZED;
+    msg = "incorrect password";
+  }
+
+  const jwt = createJWT(user.getId(), user.getFullName());
+
+  if (status !== StatusCodes.OK) {
+    res.status(status).json({ success: false, msg: msg });
+  }
+
+  console.log(user);
+
+  res.status(status).json({ success: true, data: {}, jwt });
+};
+
+export const getByMail = async (email: string) => {
+  return await userRepository
+    .createQueryBuilder("user")
+    .where("user.email = :email", { email })
+    .getOne();
 };

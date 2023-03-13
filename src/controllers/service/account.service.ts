@@ -10,6 +10,8 @@ export const createAccount = async (user: User, transactionToken: string) => {
     // Ensure that account number is === 10
     do {
       accountNumber = generateNumber(9000000000).toString();
+
+      // Ensure that account number is unique
     } while (accountNumber.length !== 10);
 
     return await new Account(

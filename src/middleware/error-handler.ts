@@ -2,14 +2,22 @@ import { Request, Response, NextFunction, ErrorRequestHandler } from "express"
 
 import StatusCodes from 'http-status-codes';
 
-export const errorHandlerMiddleware = (err: any, req: Request, res: Response, next: NextFunction) => {
-  
+export const errorHandlerMiddleware = (
+  err: any,
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  console.log(err);
   let customError = {
+    
     // set default
     statusCode: err.statusCode || StatusCodes.INTERNAL_SERVER_ERROR,
-    msg: err.message || 'Something went wrong try again later',
-  }
+    msg: err.message || "Something went wrong try again later",
+  };
 
-  return res.status(customError.statusCode).json({ success: false, msg: customError.msg })
-}
+  return res
+    .status(customError.statusCode)
+    .json({ success: false, msg: customError.msg });
+};
 

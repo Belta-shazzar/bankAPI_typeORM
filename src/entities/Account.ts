@@ -4,7 +4,6 @@ import {
   Column,
   BaseEntity,
   OneToOne,
-  JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
 } from "typeorm";
@@ -16,8 +15,7 @@ export class Account extends BaseEntity {
   @PrimaryGeneratedColumn()
   readonly id: number;
 
-  @OneToOne(() => User)
-  @JoinColumn({ name: "owner_id" })
+  @OneToOne(() => User, (owner) => owner.account)
   readonly owner: User;
 
   @Column({ name: "account_name" })
