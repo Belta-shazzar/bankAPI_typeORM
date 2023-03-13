@@ -14,8 +14,3 @@ export const AppDataSource = new DataSource({
   entities: [User, Account, Transaction],
   synchronize: true
 });
-
-// DB_PORT = 3306;
-// DB_PASSWORD = Las - jefa5;
-// DB_USERNAME = shazzar;
-// DB_NAME = chigisoft;

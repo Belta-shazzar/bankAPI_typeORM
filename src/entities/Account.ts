@@ -27,11 +27,11 @@ export class Account extends BaseEntity {
   @Column({ name: "account_number", unique: true })
   readonly accountNumber: string;
 
-  @Column({ name: "account_balance", default: 0.00 })
+  @Column({ name: "account_balance", default: 0.0 })
   private balance: number;
 
   @Column({ name: "transaction_token" })
-  private transationToken: number;
+  private transationToken: string;
 
   @CreateDateColumn({
     type: "timestamp",
@@ -50,14 +50,44 @@ export class Account extends BaseEntity {
     owner: User,
     accountName: string,
     accountNumber: string,
-    balance: number,
-    tToken: number
+    tToken: string
   ) {
     super();
     this.owner = owner;
     this.accountName = accountName;
     this.accountNumber = accountNumber;
-    this.balance = balance;
     this.transationToken = tToken;
+  }
+
+  public getId(): number {
+    return this.id;
+  }
+
+  public getOwner(): User {
+    return this.owner;
+  }
+
+  public setAccountName(accountName: string) {
+    this.accountName = accountName;
+  }
+
+  public getaccountName(): string {
+    return this.accountName;
+  }
+
+  public setBalance(balance: number) {
+    this.balance = balance;
+  }
+
+  public getBalance(): number {
+    return this.balance;
+  }
+
+  public setTransactionToken(tToken: string) {
+    this.transationToken = tToken;
+  }
+
+  public getTransactionToken(): string {
+    return this.transationToken;
   }
 }
