@@ -15,7 +15,7 @@ import { TransactionStatus, TransactionType } from "../util/enums";
 const accountRepository = AppDataSource.getRepository(Account);
 
 // @desc    Account fund account
-// @route   GET /account/fund-account
+// @route   POST /account/fund-account
 // @req.body {  "accountNumber": <<account number>>, "transactionToken": <<transaction token>>, "amount": <<amount>> }
 export const fundAccount = async (req: any, res: Response) => {
   let status = StatusCodes.INTERNAL_SERVER_ERROR;

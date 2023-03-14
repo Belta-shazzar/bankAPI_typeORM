@@ -9,7 +9,7 @@ import { getUserByMail } from "./service/user.service";
 import { encryptString, generateNumber, validateString } from "../util/helper";
 
 // @desc    User sign up auth
-// @route   GET /auth/sign-up
+// @route   POST /auth/sign-up
 // @req.body { "fullName": "Test Case1", "email": "test@gmail.com", "password": "password"}
 export const signUp = async (req: Request, res: Response) => {
   let { fullName, email, password } = req.body;
@@ -54,7 +54,7 @@ export const signUp = async (req: Request, res: Response) => {
 };
 
 // @desc    User sign in auth
-// @route   GET /auth/sign-in
+// @route   POST /auth/sign-in
 // @req.body { "email": "test@gmail.com", "password": "password"}
 // Not complete
 export const signIn = async (req: Request, res: Response) => {
