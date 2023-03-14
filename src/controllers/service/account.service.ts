@@ -3,6 +3,8 @@ import { StatusCodes } from "http-status-codes";
 import { User } from "../../entities/User";
 import { AppDataSource } from "../../config/data-source";
 import { Account } from "../../entities/Account";
+import { Response } from "express";
+import { TransactionStatus } from "../../util/enums";
 const accountRepository = AppDataSource.getRepository(Account);
 
 export const createAccount = async (user: User, transactionToken: string) => {
@@ -31,12 +33,28 @@ export const createAccount = async (user: User, transactionToken: string) => {
 };
 
 export const getByAccountNumber = async (account_number: string) => {
-  const account = await accountRepository
+  return await accountRepository
     .createQueryBuilder("account")
     .where("account.account_number = :account_number", { account_number })
     .getOne();
+};
 
-  console.log(account);
-
-  return account;
+export const transactonErrorResponse = (
+  status: number,
+  message: string,
+  res: Response
+) => {
+  if (status !== StatusCodes.INTERNAL_SERVER_ERROR) {
+    res.status(status).json({
+      success: false,
+      transactionStatus: TransactionStatus.DECLINE,
+      message,
+    });
+  } else {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      transactionStatus: TransactionStatus.PENDING,
+      message,
+    });
+  }
 };

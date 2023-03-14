@@ -47,17 +47,19 @@ export class Transaction extends BaseEntity {
 
   constructor(
     authorID: User,
-    authorAN: string,
+    authorANumber: string,
     receiver: Account,
     transactionType: TransactionType,
-    amount: number
+    amount: number,
+    transactionStatus: TransactionStatus
   ) {
     super();
     this.author = authorID;
-    this.authorAccountNumber = authorAN;
+    this.authorAccountNumber = authorANumber;
     this.receiver = receiver;
     this.transactionType = transactionType;
     this.amount = amount;
+    this.transactionStatus = transactionStatus
   }
 
   public setTransactionStatus(status: TransactionStatus) {

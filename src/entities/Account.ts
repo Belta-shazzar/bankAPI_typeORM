@@ -6,7 +6,7 @@ import {
   OneToOne,
   CreateDateColumn,
   UpdateDateColumn,
-  JoinColumn
+  JoinColumn,
 } from "typeorm";
 import { MinLength } from "class-validator";
 import { User } from "./User";
@@ -71,7 +71,7 @@ export class Account extends BaseEntity {
     this.accountName = accountName;
   }
 
-  public getaccountName(): string {
+  public getAccountName(): string {
     return this.accountName;
   }
 

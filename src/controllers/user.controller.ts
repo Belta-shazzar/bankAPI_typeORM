@@ -1,12 +1,12 @@
-import { Request, Response, NextFunction } from "express";
+import { errorResponse } from './../util/helper';
+import { Request, Response } from "express";
 import { AppDataSource } from "../config/data-source";
 import { createAccount } from "./service/account.service";
 import { StatusCodes } from "http-status-codes";
 import { createJWT } from "../middleware/jwt.setup";
 import { User } from "../entities/User";
+import { getByMail } from './service/user.service';
 import { encryptString, generateNumber, validateString } from "../util/helper";
-
-const userRepository = AppDataSource.getRepository(User);
 
 // @desc    User sign up auth
 // @route   GET /auth/sign-up
@@ -35,8 +35,6 @@ export const signUp = async (req: Request, res: Response) => {
 
   const accountDeets: any = await createAccount(user, encryptToken);
 
-  console.log(typeof accountDeets);
-
   user.setAccount(accountDeets);
   user = await user.save();
 
@@ -61,7 +59,7 @@ export const signUp = async (req: Request, res: Response) => {
 // Not complete
 export const signIn = async (req: Request, res: Response) => {
   let { email, password } = req.body;
-  let status = StatusCodes.OK;
+  let status = StatusCodes.INTERNAL_SERVER_ERROR;
   let msg = "something went wrong";
 
   try {
@@ -89,9 +87,7 @@ export const signIn = async (req: Request, res: Response) => {
       .of(user)
       .loadOne();
 
-    console.log(user);
-
-    res.status(status).json({
+    res.status(StatusCodes.OK).json({
       success: true,
       data: {
         user: { Id: user.id, email: user.email },
@@ -106,26 +102,7 @@ export const signIn = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.log(error);
-    if (
-      status === StatusCodes.NOT_FOUND ||
-      status === StatusCodes.UNAUTHORIZED
-    ) {
-      res.status(status).json({
-        success: false,
-        msg,
-      });
-    } else {
-      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        msg,
-      });
-    }
+    errorResponse(status, msg, res)
   }
 };
 
-export const getByMail = async (email: string) => {
-  return await userRepository
-    .createQueryBuilder("user")
-    .where("user.email = :email", { email })
-    .getOne();
-};

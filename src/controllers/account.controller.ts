@@ -1,11 +1,12 @@
-import { getByAccountNumber } from "./service/account.service";
+import { createTransactionReceipt } from "./service/transaction.service";
+import { getById } from "./service/user.service";
+import { getByAccountNumber, transactonErrorResponse } from "./service/account.service";
 import { Request, Response } from "express";
 import { AppDataSource } from "../config/data-source";
 import { Account } from "../entities/Account";
 import { validateString } from "../util/helper";
-import { Transaction } from "../entities/Transaction";
 import { StatusCodes } from "http-status-codes";
-import { TransactionStatus } from "../util/enums";
+import { TransactionStatus, TransactionType } from "../util/enums";
 
 const accountRepository = AppDataSource.getRepository(Account);
 
@@ -13,8 +14,7 @@ const accountRepository = AppDataSource.getRepository(Account);
 // @route   GET /account/fund-account
 // @req.body {  "accountNumber": <<account number>>, "transactionToken": <<transaction token>>, "amount": <<amount>> }
 export const fundAccount = async (req: any, res: Response) => {
-  let transactionReceipt: Transaction;
-  let status = StatusCodes.OK;
+  let status = StatusCodes.INTERNAL_SERVER_ERROR;
   let msg = "something went wrong";
   let transactionStatus: TransactionStatus;
   try {
@@ -23,7 +23,7 @@ export const fundAccount = async (req: any, res: Response) => {
 
     const account = await getByAccountNumber(accountNumber);
 
-    if (!account || account.getaccountName !== name) {
+    if (!account || account.getAccountName() !== name) {
       status = StatusCodes.NOT_FOUND;
       msg = "account does not exist";
       transactionStatus = TransactionStatus.DECLINE;
@@ -41,34 +41,31 @@ export const fundAccount = async (req: any, res: Response) => {
       throw new Error(msg);
     }
 
-    account.setBalance(account.getBalance + amount);
-    const updatedAccount = await accountRepository.save(account);
+    account.setBalance(account.getBalance() + amount);
+    const updatedAccount: any = await accountRepository.save(account);
+    transactionStatus = TransactionStatus.SUCCESS;
 
-    console.log(updatedAccount)
+    const user = await getById(userId);
 
+    await createTransactionReceipt(
+      user,
+      updatedAccount.accountNumber,
+      updatedAccount,
+      TransactionType.DEPOSIT,
+      amount,
+      transactionStatus
+    );
 
+    res.status(StatusCodes.OK).json({
+      success: true,
+      data: {
+        transaction_status: transactionStatus,
+        balance: updatedAccount.getBalance(),
+      },
+    });
   } catch (error) {
     console.log(error);
-    if (
-      status === StatusCodes.NOT_FOUND ||
-      status === StatusCodes.UNAUTHORIZED
-    ) {
-      res
-        .status(status)
-        .json({
-          success: false,
-          transactionStatus: TransactionStatus.DECLINE,
-          msg,
-        });
-    } else {
-      res
-        .status(status)
-        .json({
-          success: false,
-          transactionStatus: TransactionStatus.PENDING,
-          msg,
-        });
-    }
+    transactonErrorResponse(status, msg, res)
   }
 };
 
