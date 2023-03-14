@@ -56,7 +56,7 @@ export const fundAccount = async (req: any, res: Response) => {
       transactionStatus
     );
 
-    res.status(StatusCodes.OK).json({
+    return res.status(StatusCodes.OK).json({
       success: true,
       data: {
         transaction_status: transactionStatus,
@@ -69,9 +69,17 @@ export const fundAccount = async (req: any, res: Response) => {
   }
 };
 
-export const checkBalance = async (req: Request, res: Response) => {
-  console.log("Your balance...");
-  console.log();
+// @desc    Account check account balance
+// @route   GET /account/check-balance
+// @req.body nil
+export const checkBalance = async (req: any, res: Response) => {
+
+  const account = await accountRepository
+    .createQueryBuilder("account")
+    .where("account.owner_id = :id", { id: req.user.userId })
+    .getOne();
+  
+  return res.status(StatusCodes.OK).json({ success: true, data: { balance: account?.getBalance() } })
 };
 
 export const withdrawFunds = async (req: Request, res: Response) => {
