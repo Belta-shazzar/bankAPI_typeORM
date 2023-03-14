@@ -32,10 +32,17 @@ export const createAccount = async (user: User, transactionToken: string) => {
   }
 };
 
-export const getByAccountNumber = async (account_number: string) => {
+export const getAccountByAccountNumber = async (account_number: string) => {
   return await accountRepository
     .createQueryBuilder("account")
     .where("account.account_number = :account_number", { account_number })
+    .getOne();
+};
+
+export const getAccountByOwnerId = async (ownerId: number) => {
+  return await accountRepository
+    .createQueryBuilder("account")
+    .where("account.owner_id = :id", { id: ownerId })
     .getOne();
 };
 

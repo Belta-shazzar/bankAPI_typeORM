@@ -18,7 +18,7 @@ export class Account extends BaseEntity {
 
   @OneToOne(() => User, (owner) => owner.account, { cascade: true })
   @JoinColumn({ name: "owner_id" })
-  readonly owner: User;
+  public owner: User;
 
   @Column({ name: "account_name" })
   @MinLength(3, { message: "account name is too short" })

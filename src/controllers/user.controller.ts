@@ -1,11 +1,11 @@
-import { errorResponse } from './../util/helper';
+import { errorResponse } from "./../util/helper";
 import { Request, Response } from "express";
 import { AppDataSource } from "../config/data-source";
 import { createAccount } from "./service/account.service";
 import { StatusCodes } from "http-status-codes";
 import { createJWT } from "../middleware/jwt.setup";
 import { User } from "../entities/User";
-import { getByMail } from './service/user.service';
+import { getUserByMail } from "./service/user.service";
 import { encryptString, generateNumber, validateString } from "../util/helper";
 
 // @desc    User sign up auth
@@ -13,7 +13,7 @@ import { encryptString, generateNumber, validateString } from "../util/helper";
 // @req.body { "fullName": "Test Case1", "email": "test@gmail.com", "password": "password"}
 export const signUp = async (req: Request, res: Response) => {
   let { fullName, email, password } = req.body;
-  const checkMail = await getByMail(email);
+  const checkMail = await getUserByMail(email);
 
   if (checkMail) {
     return res
@@ -63,7 +63,7 @@ export const signIn = async (req: Request, res: Response) => {
   let msg = "something went wrong";
 
   try {
-    let user: any = await getByMail(email);
+    let user: any = await getUserByMail(email);
     if (!user) {
       status = StatusCodes.NOT_FOUND;
       msg = "email not found";
@@ -102,7 +102,6 @@ export const signIn = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.log(error);
-    errorResponse(status, msg, res)
+    errorResponse(status, msg, res);
   }
 };
-

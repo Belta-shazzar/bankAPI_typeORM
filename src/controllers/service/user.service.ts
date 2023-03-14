@@ -3,21 +3,21 @@ import { User } from "../../entities/User";
 
 const userRepository = AppDataSource.getRepository(User);
 
-export const getByMail = async (email: string) => {
+export const getUserByMail = async (email: string) => {
   return await userRepository
     .createQueryBuilder("user")
     .where("user.email = :email", { email })
     .getOne();
 };
 
-export const getById = async (id: number) => {
+export const getUserById = async (id: number) => {
   const user = await userRepository
     .createQueryBuilder("user")
-    .where("user.id = :id", { id: 12 })
-      .getOne();
-    
-    if (!user) {
-      throw new Error("user not found");
-    }
-    return user
+    .where("user.id = :id", { id: id })
+    .getOne();
+
+  if (!user) {
+    throw new Error("user not found");
+  }
+  return user;
 };
