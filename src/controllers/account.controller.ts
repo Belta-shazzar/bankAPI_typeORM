@@ -99,15 +99,31 @@ export const withdrawFunds = async (req: any, res: Response) => {
   let msg = "something went wrong";
   let transactionStatus: TransactionStatus;
   try {
-    const { transaction_token, amount } = req.body;
+    let { transaction_token, amount } = req.body;
     const account = await getAccountByOwnerId(req.user.userId);
+    amount = parseInt(amount);
 
     if (!account) {
       status = StatusCodes.NOT_FOUND;
       msg = "account not found";
       throw new Error(msg);
     }
-    
+
+    const validateToken = await validateString(
+      transaction_token,
+      account?.getTransactionToken()!
+    );
+
+    if (validateToken !== true) {
+      status = StatusCodes.UNAUTHORIZED;
+      msg = "incorrect token";
+      throw new Error(msg);
+    }
+
+    if (account.getBalance() < amount) {
+      throw new Error("insufficient fund");
+    }
+
     const newBalance = account.getBalance() - amount;
     account.setBalance(newBalance);
     const updatedAccount = await accountRepository.save(account);
@@ -124,20 +140,87 @@ export const withdrawFunds = async (req: any, res: Response) => {
       transactionStatus
     );
 
-
-    return res
-      .status(StatusCodes.OK)
-      .json({
-        success: true,
-        data: { amount_withdrawn: amount, new_balance: newBalance },
-      });
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      data: { amount_withdrawn: amount, new_balance: newBalance },
+    });
   } catch (error) {
     console.log(error);
     transactonErrorResponse(status, msg, res);
   }
 };
 
-export const transferFunds = async (req: Request, res: Response) => {
-  console.log("Transfer successful");
-  console.log();
+// @desc    Account transfer fund
+// @route   GET /account/transfer-fund
+// @req.body { "recepient_accountNumber: <<recepient_accountNumber>>, ,"transaction_token": <<transaction token>>, "amount": <<amount>> }
+export const transferFunds = async (req: any, res: Response) => {
+  let status = StatusCodes.INTERNAL_SERVER_ERROR;
+  let msg = "something went wrong";
+  let transactionStatus: TransactionStatus;
+  try {
+    let { recepient_accountNumber, transaction_token, amount } = req.body;
+    amount = parseInt(amount);
+
+    const senderAccount: any = await getAccountByOwnerId(req.user.userId);
+    const receiverAccount: any = await getAccountByAccountNumber(
+      recepient_accountNumber
+    );
+
+    if (!senderAccount || !receiverAccount) {
+      status = StatusCodes.NOT_FOUND;
+      msg = "account not found";
+    }
+
+    const validateToken = await validateString(
+      transaction_token,
+      senderAccount.getTransactionToken()!
+    );
+
+    if (validateToken !== true) {
+      status = StatusCodes.UNAUTHORIZED;
+      msg = "incorrect token";
+      throw new Error(msg);
+    }
+
+    if (senderAccount.getBalance() < amount) {
+      throw new Error("insufficient fund");
+    }
+
+    // deduct transfer amount from sender account
+    const senderNewBalance = senderAccount.getBalance() - amount;
+    senderAccount.setBalance(senderNewBalance);
+    await accountRepository.save(senderAccount);
+
+    // add transfer amount to receiver account
+    receiverAccount.setBalance(receiverAccount.getBalance() + amount);
+
+    const updatedReceiverAccount = await accountRepository.save(
+      receiverAccount
+    );
+
+    transactionStatus = TransactionStatus.SUCCESS;
+
+    const user = await getUserById(req.user.userId);
+
+    await createTransactionReceipt(
+      user,
+      senderAccount.accountNumber,
+      updatedReceiverAccount,
+      TransactionType.TRANSFER,
+      amount,
+      transactionStatus
+    );
+
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      data: {
+        amount_transfered: amount,
+        new_balance: senderNewBalance,
+        receiver_accountName: receiverAccount.accountName,
+      },
+    });
+  } catch (error) {
+    console.log(error);
+    transactonErrorResponse(status, msg, res);
+  }
 };
