@@ -152,6 +152,24 @@ export const withdrawFunds = async (req: any, res: Response) => {
 
 // @desc    Account transfer fund
 // @route   GET /account/transfer-fund
+// @req.body { "account_number: <<accountNumber>>}
+export const getAccount = async (req: any, res: Response) => {
+  let { account_number } = req.body;
+  const account = await getAccountByAccountNumber(account_number);
+
+  if (!account) {
+    return res
+      .status(StatusCodes.NOT_FOUND)
+      .json({ success: false, msg: "account not found" });
+  }
+
+  return res
+    .status(StatusCodes.NOT_FOUND)
+    .json({ success: false, data: { account_name: account.getAccountName() } });
+};
+
+// @desc    Account transfer fund
+// @route   GET /account/transfer-fund
 // @req.body { "recepient_accountNumber: <<recepient_accountNumber>>, ,"transaction_token": <<transaction token>>, "amount": <<amount>> }
 export const transferFunds = async (req: any, res: Response) => {
   let status = StatusCodes.INTERNAL_SERVER_ERROR;
