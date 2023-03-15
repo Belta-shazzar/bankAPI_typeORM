@@ -152,7 +152,7 @@ export const withdrawFunds = async (req: any, res: Response) => {
 
 // @desc    Account transfer fund
 // @route   GET /account/transfer-fund
-// @req.body { "account_number: <<accountNumber>>}
+// @req.body { "account_number: <<accountNumber>> }
 export const getAccount = async (req: any, res: Response) => {
   let { account_number } = req.body;
   const account = await getAccountByAccountNumber(account_number);
