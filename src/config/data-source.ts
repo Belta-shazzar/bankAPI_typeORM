@@ -11,6 +11,15 @@ export const AppDataSource = new DataSource({
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  entities: [User, Account, Transaction],
-  synchronize: true
+  entities: [__dirname + "/../entities/*{.js,.ts}"],
+  synchronize: true,
+});
+
+export const TestDataSource = new DataSource({
+  type: "sqlite",
+  database: ":memory:",
+  dropSchema: true,
+  // entities: [getDirEntities()],
+  synchronize: true,
+  logging: false,
 });

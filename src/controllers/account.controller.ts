@@ -184,7 +184,7 @@ export const transferFunds = async (req: any, res: Response) => {
       recepient_accountNumber
     );
 
-    if (!senderAccount || !receiverAccount) {
+    if (!senderAccount && !receiverAccount) {
       status = StatusCodes.NOT_FOUND;
       msg = "account not found";
     }

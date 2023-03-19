@@ -26,7 +26,6 @@ export const createAccount = async (user: User, transactionToken: string) => {
     ).save();
     // return await account.save();
   } catch (error) {
-    console.log("Got here tho");
     console.log(error);
     throw new Error();
   }
