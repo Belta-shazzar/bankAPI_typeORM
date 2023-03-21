@@ -1,30 +1,47 @@
+import { Account } from "./../../entities/Account";
 import { generateNumber } from "../../util/helper";
 import { StatusCodes } from "http-status-codes";
 import { User } from "../../entities/User";
 import { AppDataSource } from "../../config/data-source";
-import { Account } from "../../entities/Account";
 import { Response } from "express";
 import { TransactionStatus } from "../../util/enums";
+
 const accountRepository = AppDataSource.getRepository(Account);
 
 export const createAccount = async (user: User, transactionToken: string) => {
   try {
     let accountNumber: string;
 
-    // Ensure that account number is === 10
+    // Ensure that account number length is === 10
     do {
       accountNumber = generateNumber(9000000000).toString();
 
       // Ensure that account number is unique
+      let checkAccNumber = await accountRepository.findBy({
+        accountName: accountNumber,
+      });
+
+      if (checkAccNumber.length !== 0) {
+        // Generated account number exists so the loop continues
+        accountNumber = "0000";
+      }
     } while (accountNumber.length !== 10);
 
-    return await new Account(
+    let account = new Account(
       user,
-      user.getFullName(),
       accountNumber,
+      user.fullName,
       transactionToken
-    ).save();
-    // return await account.save();
+    );
+
+    account = await accountRepository.save(account);
+
+    return {
+      user_id: account.owner.id,
+      account_name: account.accountName,
+      account_number: account.accountNumber,
+      account_bal: account.balance,
+    };
   } catch (error) {
     console.log(error);
     throw new Error();

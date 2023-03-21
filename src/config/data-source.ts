@@ -13,11 +13,11 @@ export const AppDataSource = new DataSource({
   synchronize: true,
 });
 
-export const TestDataSource = new DataSource({
-  type: "sqlite",
-  database: ":memory:",
-  dropSchema: true,
-  // entities: [getDirEntities()],
-  synchronize: true,
-  logging: false,
-});
+// export const TestDataSource = new DataSource({
+//   type: "sqlite",
+//   database: ":memory:",
+//   dropSchema: true,
+//   // entities: [getDirEntities()],
+//   synchronize: true,
+//   logging: false,
+// });
