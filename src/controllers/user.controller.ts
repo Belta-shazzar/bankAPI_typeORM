@@ -1,4 +1,3 @@
-import { errorResponse } from "./../util/helper";
 import { Request, Response } from "express";
 import { AppDataSource } from "../config/data-source";
 import { createAccount } from "./service/account.service";
@@ -6,7 +5,14 @@ import { StatusCodes } from "http-status-codes";
 import { createJWT } from "../middleware/jwt.setup";
 import { User } from "../entities/User";
 import { getUserByMail } from "./service/user.service";
-import { encryptString, generateNumber, validateString } from "../util/helper";
+import {
+  errorResponse,
+  encryptString,
+  generateNumber,
+  validateString,
+} from "../util/helper";
+
+const userRepository = AppDataSource.getRepository(User);
 
 // @desc    User sign up auth
 // @route   POST /auth/sign-up
@@ -23,31 +29,32 @@ export const signUp = async (req: Request, res: Response) => {
 
   password = await encryptString(password);
 
-  let user = await new User(fullName, email, password).save();
+  let user = new User(fullName, email, password);
 
-  let transactionToken: string;
+  let transaction_token: string;
 
   // Ensure that transaction token is === 4
   do {
-    transactionToken = generateNumber(9000).toString();
-  } while (transactionToken.length !== 4);
-  const encryptToken = await encryptString(transactionToken);
+    transaction_token = generateNumber(9000).toString();
+  } while (transaction_token.length !== 4);
+  const encryptToken = await encryptString(transaction_token);
 
-  const accountDeets: any = await createAccount(user, encryptToken);
+  const {
+    user_id,
+    account_name,
+    account_number,
+    account_bal,
+  } = await createAccount(user, encryptToken);
 
-  user.setAccount(accountDeets);
-  user = await user.save();
-
-  const jwt = createJWT(user.getId(), user.getFullName());
-  // userRepository.create(user)
+  const jwt = createJWT(user_id, user.fullName);
 
   return res.status(StatusCodes.CREATED).json({
     success: true,
     data: {
-      account_name: accountDeets.accountName,
-      account_number: accountDeets.accountNumber,
-      transaction_token: transactionToken,
-      account_bal: accountDeets.balance,
+      account_name,
+      account_number,
+      transaction_token,
+      account_bal
     },
     jwt,
   });

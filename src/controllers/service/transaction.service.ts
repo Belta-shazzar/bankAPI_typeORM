@@ -1,10 +1,10 @@
 import { TransactionType, TransactionStatus } from "./../../util/enums";
-import { User } from "../../entities/User";
-import { Account } from "../../entities/Account";
+import { User } from "../../entities/User3";
+import { Account } from "../../entities/Account3";
 import { Transaction } from "../../entities/Transaction";
 import { AppDataSource } from "../../config/data-source";
 
-const transactionRepository = AppDataSource.getRepository(Transaction)
+const transactionRepository = AppDataSource.getRepository(Transaction);
 
 export const createTransactionReceipt = async (
   author: User,
@@ -15,7 +15,6 @@ export const createTransactionReceipt = async (
   status: TransactionStatus
 ) => {
   try {
-
     const transaction = new Transaction(
       author,
       authorAN,
@@ -25,7 +24,7 @@ export const createTransactionReceipt = async (
       status
     ).save();
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
 };
 

@@ -42,8 +42,6 @@
     "cross-env": "^7.0.3",
     "mocha": "^10.2.0",
     "nodemon": "^2.0.21",
-    "sqlite": "^4.1.2",
-    "sqlite3": "^5.1.6",
     "supertest": "^6.3.3"
   }
 }

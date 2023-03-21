@@ -1,4 +1,4 @@
-import { Account } from './Account';
+import { Account } from "./Account";
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -59,7 +59,7 @@ export class Transaction extends BaseEntity {
     this.receiver = receiver;
     this.transactionType = transactionType;
     this.amount = amount;
-    this.transactionStatus = transactionStatus
+    this.transactionStatus = transactionStatus;
   }
 
   public setTransactionStatus(status: TransactionStatus) {
