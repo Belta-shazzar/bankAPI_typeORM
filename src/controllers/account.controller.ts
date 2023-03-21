@@ -1,18 +1,59 @@
-// import { createTransactionReceipt } from "./service/transaction.service";
-// import { getUserById } from "./service/user.service";
-// import {
-//   getAccountByAccountNumber,
-//   getAccountByOwnerId,
-//   transactonErrorResponse,
-// } from "./service/account.service";
-// import { Request, Response } from "express";
-// import { AppDataSource } from "../config/data-source";
-// import { Account } from "../entities/Account";
-// import { validateString, errorResponse } from "../util/helper";
-// import { StatusCodes } from "http-status-codes";
-// import { TransactionStatus, TransactionType } from "../util/enums";
+import { createTransactionReceipt } from "./service/transaction.service";
+import { getUserById } from "./service/user.service";
+import {
+  createAccountOps,
+  getAccountByAccountNumber,
+  getAccountByOwnerId,
+  transactonErrorResponse,
+} from "./service/account.service";
+import { Request, Response } from "express";
+import { AppDataSource } from "../config/data-source";
+import { Account } from "../entities/Account";
+import {
+  validateString,
+  errorResponse,
+  encryptString,
+  generateNumber,
+} from "../util/helper";
+import { StatusCodes } from "http-status-codes";
+import { TransactionStatus, TransactionType } from "../util/enums";
 
-// const accountRepository = AppDataSource.getRepository(Account);
+const accountRepository = AppDataSource.getRepository(Account);
+
+// // @desc    Account create account
+// // @route   POST /account/fund-account
+// // @req.body {  "accountNumber": <<account number>>, "transactionToken": <<transaction token>>, "amount": <<amount>> }
+export const createAccount = async (req: any, res: Response) => {
+  try {
+    const { userId } = req.user;
+
+    const user = await getUserById(userId);
+
+    let transaction_token: string;
+
+    // Ensure that transaction token is === 4
+    do {
+      transaction_token = generateNumber(9000).toString();
+    } while (transaction_token.length !== 4);
+    const encryptToken = await encryptString(transaction_token);
+
+    const { account_name, account_number, account_bal } =
+      await createAccountOps(user, encryptToken);
+
+    return res.status(StatusCodes.CREATED).json({
+      success: true,
+      data: {
+        account_name,
+        account_number,
+        transaction_token,
+        account_bal,
+      },
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json("something went wrong");
+  }
+};
 
 // // @desc    Account fund account
 // // @route   POST /account/fund-account

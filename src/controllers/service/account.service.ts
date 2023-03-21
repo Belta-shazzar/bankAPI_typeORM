@@ -8,7 +8,10 @@ import { TransactionStatus } from "../../util/enums";
 
 const accountRepository = AppDataSource.getRepository(Account);
 
-export const createAccount = async (user: User, transactionToken: string) => {
+export const createAccountOps = async (
+  user: User,
+  transactionToken: string
+) => {
   try {
     let accountNumber: string;
 

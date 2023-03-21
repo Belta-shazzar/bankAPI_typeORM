@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { AppDataSource } from "../config/data-source";
-import { createAccount } from "./service/account.service";
+import { createAccountOps } from "./service/account.service";
 import { StatusCodes } from "http-status-codes";
 import { createJWT } from "../middleware/jwt.setup";
 import { User } from "../entities/User";
@@ -39,12 +39,8 @@ export const signUp = async (req: Request, res: Response) => {
   } while (transaction_token.length !== 4);
   const encryptToken = await encryptString(transaction_token);
 
-  const {
-    user_id,
-    account_name,
-    account_number,
-    account_bal,
-  } = await createAccount(user, encryptToken);
+  const { user_id, account_name, account_number, account_bal } =
+    await createAccountOps(user, encryptToken);
 
   const jwt = createJWT(user_id, user.fullName);
 
@@ -54,7 +50,7 @@ export const signUp = async (req: Request, res: Response) => {
       account_name,
       account_number,
       transaction_token,
-      account_bal
+      account_bal,
     },
     jwt,
   });

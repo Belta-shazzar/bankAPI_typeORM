@@ -11,10 +11,7 @@ export const getUserByMail = async (email: string) => {
 };
 
 export const getUserById = async (id: number) => {
-  const user = await userRepository
-    .createQueryBuilder("user")
-    .where("user.id = :id", { id: id })
-    .getOne();
+  const user = await userRepository.findOneBy({ id: id })
 
   if (!user) {
     throw new Error("user not found");

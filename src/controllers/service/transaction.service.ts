@@ -1,6 +1,6 @@
 import { TransactionType, TransactionStatus } from "./../../util/enums";
-import { User } from "../../entities/User3";
-import { Account } from "../../entities/Account3";
+import { User } from "../../entities/User";
+import { Account } from "../../entities/Account";
 import { Transaction } from "../../entities/Transaction";
 import { AppDataSource } from "../../config/data-source";
 
