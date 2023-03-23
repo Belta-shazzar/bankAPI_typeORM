@@ -3,8 +3,8 @@ import { Account } from "./Account";
 
 @Entity()
 export class User {
-  @PrimaryGeneratedColumn()
-  readonly id: number;
+  @PrimaryGeneratedColumn({ name: "user_id" })
+  readonly userId: number;
 
   @Column({ name: "full_name" })
   fullName: string;

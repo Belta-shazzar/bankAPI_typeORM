@@ -74,10 +74,7 @@ export const signIn = async (req: Request, res: Response) => {
       throw new Error(msg);
     }
 
-    const validatePassword = await validateString(
-      password,
-      user.password
-    );
+    const validatePassword = await validateString(password, user.password);
 
     if (validatePassword !== true) {
       status = StatusCodes.UNAUTHORIZED;
@@ -86,19 +83,16 @@ export const signIn = async (req: Request, res: Response) => {
     }
 
     // generate JWT token
-    const jwt = createJWT(user.id, user.fullName);
+    const jwt = createJWT(user.userId, user.fullName);
 
-    const userAccounts = await getAccountByOwner(user)
-    console.log(userAccounts);
-    console.log();
-    console.log(user)
+    const userAccounts = await getAccountByOwner(user);
 
     res.status(StatusCodes.OK).json({
       success: true,
       data: {
-        user: { Id: user.id, email: user.email },
+        user: { Id: user.userId, email: user.email },
         account: {
-          userAccounts
+          userAccounts,
         },
       },
       jwt,

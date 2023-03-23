@@ -13,8 +13,8 @@ import { User } from "./User";
 
 @Entity("transaction_receipt")
 export class Transaction extends BaseEntity {
-  @PrimaryGeneratedColumn()
-  readonly id: number;
+  @PrimaryGeneratedColumn({ name: "transaction_id" })
+  readonly transactionId: number;
 
   @ManyToOne(() => User)
   readonly author: User;

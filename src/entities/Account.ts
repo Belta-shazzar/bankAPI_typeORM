@@ -11,10 +11,13 @@ import { User } from "./User";
 
 @Entity()
 export class Account {
-  @PrimaryGeneratedColumn()
-  readonly id: number;
+  @PrimaryGeneratedColumn({ name: "account_id" })
+  readonly accountId: number;
 
-  @ManyToOne(() => User, (user) => user.accounts, { cascade: ["insert"] })
+  @ManyToOne(() => User, (user) => user.accounts, {
+    cascade: ["insert"],
+    eager: true,
+  })
   @JoinColumn({ name: "owner_id" })
   owner: User;
 

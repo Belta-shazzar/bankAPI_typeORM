@@ -40,7 +40,7 @@ export const createAccountOps = async (
     account = await accountRepository.save(account);
 
     return {
-      user_id: account.owner.id,
+      user_id: account.owner.userId,
       account_name: account.accountName,
       account_number: account.accountNumber,
       account_bal: account.balance,
@@ -58,15 +58,21 @@ export const getAccountByAccountNumber = async (account_number: string) => {
 export const getAccountByOwner = async (owner: User) => {
   const accounts = await accountRepository.find({
     where: { owner: owner },
-    select: { id: true, accountNumber: true, balance: true },
+    select: { accountId: true, accountNumber: true, balance: true },
   });
 
-  return accounts.map(({ id, accountNumber, balance }) => ({
-    id,
+  return accounts.map(({ accountId, accountNumber, balance }) => ({
+    accountId,
     accountNumber,
     balance,
   }));
 };
+
+export const getAccountBalance = async (accountNumber: string) => {
+  const account = await accountRepository.findOneBy({accountNumber: accountNumber });
+
+  return { userId: account?.owner.userId, balance: account?.balance }
+}
 
 export const transactonErrorResponse = (
   status: number,

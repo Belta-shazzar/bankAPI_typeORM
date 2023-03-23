@@ -8,7 +8,7 @@ export const getUserByMail = async (email: string) => {
 };
 
 export const getUserById = async (id: number) => {
-  const user = await userRepository.findOneBy({ id: id })
+  const user = await userRepository.findOneBy({ userId: id });
 
   if (!user) {
     throw new Error("user not found");
