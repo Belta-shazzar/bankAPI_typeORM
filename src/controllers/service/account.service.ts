@@ -52,17 +52,20 @@ export const createAccountOps = async (
 };
 
 export const getAccountByAccountNumber = async (account_number: string) => {
-  return await accountRepository
-    .createQueryBuilder("account")
-    .where("account.account_number = :account_number", { account_number })
-    .getOne();
+  return await accountRepository.findOneBy({ accountNumber: account_number });
 };
 
-export const getAccountByOwnerId = async (ownerId: number) => {
-  return await accountRepository
-    .createQueryBuilder("account")
-    .where("account.owner_id = :id", { id: ownerId })
-    .getOne();
+export const getAccountByOwner = async (owner: User) => {
+  const accounts = await accountRepository.find({
+    where: { owner: owner },
+    select: { id: true, accountNumber: true, balance: true },
+  });
+
+  return accounts.map(({ id, accountNumber, balance }) => ({
+    id,
+    accountNumber,
+    balance,
+  }));
 };
 
 export const transactonErrorResponse = (

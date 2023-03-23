@@ -4,10 +4,7 @@ import { User } from "../../entities/User";
 const userRepository = AppDataSource.getRepository(User);
 
 export const getUserByMail = async (email: string) => {
-  return await userRepository
-    .createQueryBuilder("user")
-    .where("user.email = :email", { email })
-    .getOne();
+  return await userRepository.findOneBy({ email: email });
 };
 
 export const getUserById = async (id: number) => {

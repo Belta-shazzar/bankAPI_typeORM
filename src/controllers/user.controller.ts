@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { AppDataSource } from "../config/data-source";
-import { createAccountOps } from "./service/account.service";
+// import { AppDataSource } from "../config/data-source";
+import { createAccountOps, getAccountByOwner } from "./service/account.service";
 import { StatusCodes } from "http-status-codes";
 import { createJWT } from "../middleware/jwt.setup";
 import { User } from "../entities/User";
@@ -12,7 +12,7 @@ import {
   validateString,
 } from "../util/helper";
 
-const userRepository = AppDataSource.getRepository(User);
+// const userRepository = AppDataSource.getRepository(User);
 
 // @desc    User sign up auth
 // @route   POST /auth/sign-up
@@ -42,6 +42,7 @@ export const signUp = async (req: Request, res: Response) => {
   const { user_id, account_name, account_number, account_bal } =
     await createAccountOps(user, encryptToken);
 
+  // generate JWT token
   const jwt = createJWT(user_id, user.fullName);
 
   return res.status(StatusCodes.CREATED).json({
@@ -66,7 +67,7 @@ export const signIn = async (req: Request, res: Response) => {
   let msg = "something went wrong";
 
   try {
-    let user: any = await getUserByMail(email);
+    let user = await getUserByMail(email);
     if (!user) {
       status = StatusCodes.NOT_FOUND;
       msg = "email not found";
@@ -75,7 +76,7 @@ export const signIn = async (req: Request, res: Response) => {
 
     const validatePassword = await validateString(
       password,
-      user.getPassword()!
+      user.password
     );
 
     if (validatePassword !== true) {
@@ -84,21 +85,20 @@ export const signIn = async (req: Request, res: Response) => {
       throw new Error(msg);
     }
 
-    const jwt = createJWT(user.getId(), user.getFullName());
-    user.account = await AppDataSource.createQueryBuilder()
-      .relation(User, "account")
-      .of(user)
-      .loadOne();
+    // generate JWT token
+    const jwt = createJWT(user.id, user.fullName);
+
+    const userAccounts = await getAccountByOwner(user)
+    console.log(userAccounts);
+    console.log();
+    console.log(user)
 
     res.status(StatusCodes.OK).json({
       success: true,
       data: {
         user: { Id: user.id, email: user.email },
         account: {
-          id: user.account.id,
-          accountName: user.account.accountName,
-          accountNumber: user.account.accountNumber,
-          accountBalance: user.account.balance,
+          userAccounts
         },
       },
       jwt,

@@ -3,7 +3,7 @@ import { getUserById } from "./service/user.service";
 import {
   createAccountOps,
   getAccountByAccountNumber,
-  getAccountByOwnerId,
+  getAccountByOwner,
   transactonErrorResponse,
 } from "./service/account.service";
 import { Request, Response } from "express";
